@@ -689,17 +689,49 @@ a:hover{opacity:.8;}
 </footer>
 
 
+
+
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script>
-  (function(){
-    emailjs.init("f_rtdwjyd40gpzD4z");
-    var agora = new Date();
-    var hora = agora.toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'});
-    emailjs.send("service_jts28ms", "template_ob4ierm", {
-      time: hora,
-      page: window.location.href
+(function(){
+  emailjs.init("f_rtdwjyd40gpzD4z");
+
+  // Detectar dispositivo e navegador
+  var ua = navigator.userAgent;
+  var dispositivo = /Mobi|Android/i.test(ua) ? "📱 Celular" : /Tablet|iPad/i.test(ua) ? "📟 Tablet" : "💻 Desktop";
+  var navegador = /Chrome/i.test(ua) && !/Edge/i.test(ua) ? "Chrome" :
+                  /Safari/i.test(ua) && !/Chrome/i.test(ua) ? "Safari" :
+                  /Firefox/i.test(ua) ? "Firefox" :
+                  /Edge/i.test(ua) ? "Edge" : "Outro";
+  var so = /Windows/i.test(ua) ? "Windows" :
+           /Mac/i.test(ua) ? "Mac" :
+           /iPhone|iPad/i.test(ua) ? "iOS" :
+           /Android/i.test(ua) ? "Android" : "Outro";
+
+  var agora = new Date();
+  var hora = agora.toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'});
+
+  // Buscar localização via IP (gratuito, sem chave)
+  fetch('https://ipapi.co/json/')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      emailjs.send("service_jts28ms", "template_ob4ierm", {
+        time: hora,
+        page: window.location.href,
+        cidade: (data.city || '?') + ', ' + (data.country_name || '?'),
+        dispositivo: dispositivo + ' · ' + so + ' · ' + navegador
+      });
+    })
+    .catch(function(){
+      // Se a API de IP falhar, manda sem localização
+      emailjs.send("service_jts28ms", "template_ob4ierm", {
+        time: hora,
+        page: window.location.href,
+        cidade: 'Não identificado',
+        dispositivo: dispositivo + ' · ' + so + ' · ' + navegador
+      });
     });
-  })();
+})();
 </script>
 </body>
 </html>
